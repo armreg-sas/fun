@@ -1,4 +1,6 @@
-function displayLinks() {
-    const baseUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1)}bingo-player.html`;
-    // Additional logic to display links
+function displayLinks(players) {
+    const baseUrl = 'https://example.com/player';  // Construct the base URL correctly
+    players.forEach(player => {
+        console.log(`${baseUrl}/${player.id}`); // Generate player links
+    });
 }
