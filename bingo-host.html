@@ -1,11 +1,4 @@
 function displayLinks() {
-    const players = ["Alice", "Bob", "Charlie"];
-    const linkContainer = document.getElementById('linkContainer');
-    players.forEach(player => {
-        const link = document.createElement('a');
-        link.href = `bingo-player.html?name=${player}`;
-        link.innerText = player;
-        linkContainer.appendChild(link);
-        linkContainer.appendChild(document.createElement('br'));
-    });
+    const baseUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1)}bingo-player.html`;
+    // Additional logic to display links
 }
