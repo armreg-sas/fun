@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>⚠️ FARKLE CHALLENGE MODE ⚠️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', 'Consolas', monospace;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a0000 50%, #000000 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(139, 0, 0, 0.03) 2px,
+                    rgba(139, 0, 0, 0.03) 4px
+                );
+            pointer-events: none;
+            animation: scanlines 8s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(20px); }
+        }
+
+        .game-container {
+            background: linear-gradient(135deg, #1a0000 0%, #0a0a0a 100%);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 
+                0 0 50px rgba(139, 0, 0, 0.5),
+                inset 0 0 30px rgba(0, 0, 0, 0.8),
+                0 20px 60px rgba(0, 0, 0, 0.9);
+            max-width: 800px;
+            width: 100%;
+            border: 2px solid #8b0000;
+            position: relative;
+        }
+
+        .game-container::before {
+            content: '⚠️ CHALLENGE MODE ⚠️';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #8b0000;
+            color: #ff0000;
+            padding: 5px 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.8);
+            animation: pulse-warning 2s infinite;
+        }
+
+        @keyframes pulse-warning {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        h1 {
+            text-align: center;
+            color: #ff0000;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 
+                0 0 10px #ff0000,
+                0 0 20px #8b0000,
+                2px 2px 4px rgba(0, 0, 0, 0.8);
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #ff4444;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+            font-weight: bold;
+        }
+
+        .scores {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .score-card {
+            flex: 1;
+            background: linear-gradient(135deg, #2a0000 0%, #0a0a0a 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.5),
+                inset 0 0 20px rgba(139, 0, 0, 0.2);
+            border: 1px solid #4a0000;
+        }
+
+        .score-card.active {
+            background: linear-gradient(135deg, #4a0000 0%, #1a0000 100%);
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 30px rgba(255, 0, 0, 0.6),
+                inset 0 0 20px rgba(139, 0, 0, 0.3);
+            border: 2px solid #ff0000;
+            animation: pulse-glow 1.5s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.6), inset 0 0 20px rgba(139, 0, 0, 0.3); }
+            50% { box-shadow: 0 0 50px rgba(255, 0, 0, 0.8), inset 0 0 30px rgba(139, 0, 0, 0.5); }
+        }
+
+        .score-card h3 {
+            color: #ff4444;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            font-weight: bold;
+        }
+
+        .score {
+            font-size: 2em;
+            color: #ff0000;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+        }
+
+        .turn-score {
+            font-size: 1.2em;
+            color: #ff6666;
+            margin-top: 5px;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+        }
+
+        .dice-area {
+            background: linear-gradient(135deg, #1a0000 0%, #0a0a0a 100%);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #4a0000;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .dice-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .die {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff0000;
+            cursor: pointer;
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.8),
+                inset 0 0 10px rgba(139, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            border: 2px solid #4a0000;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
+
+        .die:hover:not(.kept) {
+            transform: translateY(-5px) rotate(5deg);
+            box-shadow: 
+                0 8px 20px rgba(255, 0, 0, 0.5),
+                inset 0 0 15px rgba(139, 0, 0, 0.5);
+            border-color: #ff0000;
+        }
+
+        /* Active state for mobile touch feedback */
+        .die:active:not(.kept) {
+            transform: translateY(-3px) rotate(3deg);
+            box-shadow: 
+                0 6px 15px rgba(255, 0, 0, 0.6),
+                inset 0 0 12px rgba(139, 0, 0, 0.6);
+            border-color: #ff0000;
+        }
+
+        .die.kept {
+            background: linear-gradient(135deg, #4a0000 0%, #2a0000 100%);
+            border: 3px solid #ff0000;
+            box-shadow: 
+                0 0 20px rgba(255, 0, 0, 0.8),
+                inset 0 0 15px rgba(255, 0, 0, 0.3);
+            animation: kept-pulse 1s infinite;
+        }
+
+        @keyframes kept-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
+        }
+
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn-roll {
+            background: linear-gradient(135deg, #8b0000 0%, #4a0000 100%);
+            color: #ff0000;
+            border: 2px solid #ff0000;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+        }
+
+        .btn-roll:hover:not(:disabled) {
+            background: linear-gradient(135deg, #ff0000 0%, #8b0000 100%);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+        }
+
+        .btn-bank {
+            background: linear-gradient(135deg, #1a4a1a 0%, #0a2a0a 100%);
+            color: #00ff00;
+            border: 2px solid #00aa00;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+        }
+
+        .btn-bank:hover:not(:disabled) {
+            background: linear-gradient(135deg, #00aa00 0%, #1a4a1a 100%);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+        }
+
+        .btn-new-game {
+            background: linear-gradient(135deg, #1a1a4a 0%, #0a0a2a 100%);
+            color: #6666ff;
+            border: 2px solid #4444aa;
+            text-shadow: 0 0 5px rgba(100, 100, 255, 0.5);
+        }
+
+        .btn-new-game:hover {
+            background: linear-gradient(135deg, #4444aa 0%, #1a1a4a 100%);
+            box-shadow: 0 0 30px rgba(100, 100, 255, 0.6);
+        }
+
+        .message {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid;
+            text-shadow: 0 0 5px currentColor;
+        }
+
+        .message.info {
+            background: linear-gradient(135deg, #1a1a4a 0%, #0a0a2a 100%);
+            color: #6666ff;
+            border-color: #4444aa;
+            box-shadow: 0 0 20px rgba(100, 100, 255, 0.3);
+        }
+
+        .message.success {
+            background: linear-gradient(135deg, #1a4a1a 0%, #0a2a0a 100%);
+            color: #00ff00;
+            border-color: #00aa00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .message.warning {
+            background: linear-gradient(135deg, #8b0000 0%, #4a0000 100%);
+            color: #ff0000;
+            border-color: #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            animation: warning-flash 0.5s;
+        }
+
+        @keyframes warning-flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .rules {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a0000 0%, #0a0a0a 100%);
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #ff6666;
+            border: 1px solid #4a0000;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .rules h4 {
+            color: #ff0000;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            font-size: 1.2em;
+        }
+
+        .rules ul {
+            margin-left: 20px;
+        }
+
+        .rules li {
+            margin: 5px 0;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .victory-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(26, 0, 0, 0.98) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .victory-content {
+            text-align: center;
+            color: #ff0000;
+            transform: scale(0);
+            animation: expandIn 0.8s 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            padding: 20px;
+            max-width: 90vw;
+        }
+
+        @keyframes expandIn {
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .victory-title {
+            font-size: 5em;
+            margin-bottom: 20px;
+            text-shadow: 
+                0 0 20px rgba(255, 0, 0, 0.8),
+                0 0 40px rgba(255, 0, 0, 0.6),
+                0 0 60px rgba(255, 0, 0, 0.4);
+            animation: pulse-victory 1.5s infinite;
+            font-weight: bold;
+            letter-spacing: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .victory-title {
+                font-size: 3em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .victory-title {
+                font-size: 2.5em;
+            }
+        }
+
+        @keyframes pulse-victory {
+            0%, 100% {
+                transform: scale(1);
+                text-shadow: 
+                    0 0 20px rgba(255, 0, 0, 0.8),
+                    0 0 40px rgba(255, 0, 0, 0.6);
+            }
+            50% {
+                transform: scale(1.1);
+                text-shadow: 
+                    0 0 30px rgba(255, 0, 0, 1),
+                    0 0 60px rgba(255, 0, 0, 0.8),
+                    0 0 90px rgba(255, 0, 0, 0.6);
+            }
+        }
+
+        .victory-score {
+            font-size: 3em;
+            margin: 20px 0;
+            color: #ff0000;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+        }
+
+        @media (max-width: 768px) {
+            .victory-score {
+                font-size: 2em;
+                margin: 15px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .victory-score {
+                font-size: 1.5em;
+                margin: 10px 0;
+            }
+        }
+
+        .victory-message {
+            font-size: 2em;
+            margin-top: 10px;
+            opacity: 0;
+            animation: fadeIn 0.5s 1.2s forwards;
+            color: #ff4444;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            .victory-message {
+                font-size: 1.5em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .victory-message {
+                font-size: 1.2em;
+            }
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .game-container {
+                padding: 20px;
+                border-radius: 10px;
+            }
+
+            .game-container::before {
+                font-size: 0.7em;
+                padding: 3px 15px;
+            }
+
+            h1 {
+                font-size: 2em;
+                letter-spacing: 2px;
+            }
+
+            .subtitle {
+                font-size: 0.9em;
+            }
+
+            .scores {
+                gap: 10px;
+            }
+
+            .score-card {
+                padding: 15px;
+            }
+
+            .score-card h3 {
+                font-size: 0.9em;
+            }
+
+            .score {
+                font-size: 1.5em;
+            }
+
+            .turn-score {
+                font-size: 1em;
+            }
+
+            .dice-area {
+                padding: 20px;
+            }
+
+            .dice-container {
+                gap: 10px;
+            }
+
+            .die {
+                width: 60px;
+                height: 60px;
+                font-size: 1.8em;
+                /* Larger tap target for mobile */
+                min-width: 44px;
+                min-height: 44px;
+            }
+
+            button {
+                padding: 12px 20px;
+                font-size: 0.9em;
+                letter-spacing: 1px;
+                /* Ensure minimum tap target size */
+                min-height: 44px;
+            }
+
+            .message {
+                font-size: 0.95em;
+                padding: 12px;
+            }
+
+            .rules {
+                font-size: 0.85em;
+                padding: 15px;
+            }
+
+            .rules h4 {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            .game-container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.6em;
+                letter-spacing: 1px;
+            }
+
+            .subtitle {
+                font-size: 0.75em;
+            }
+
+            .scores {
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .score-card {
+                padding: 12px;
+            }
+
+            .dice-area {
+                padding: 15px;
+            }
+
+            .dice-container {
+                gap: 8px;
+            }
+
+            .die {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5em;
+            }
+
+            .buttons {
+                gap: 10px;
+            }
+
+            button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+                flex: 1;
+                min-width: 100px;
+            }
+
+            .message {
+                font-size: 0.85em;
+                padding: 10px;
+                min-height: 40px;
+            }
+
+            .rules {
+                font-size: 0.8em;
+                padding: 12px;
+            }
+
+            .rules ul {
+                margin-left: 15px;
+            }
+
+            .rules li {
+                margin: 3px 0;
+            }
+        }
+
+        /* Landscape mobile optimization */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .game-container {
+                max-width: 90vw;
+            }
+
+            .scores {
+                flex-direction: row;
+            }
+
+            .dice-container {
+                gap: 8px;
+            }
+
+            .die {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5em;
+            }
+        }
+
+        /* Prevent text selection on mobile */
+        @media (hover: none) and (pointer: coarse) {
+            * {
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            button {
+                -webkit-tap-highlight-color: rgba(255, 0, 0, 0.2);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>⚠️ FARKLE CHALLENGE ⚠️</h1>
+        <p class="subtitle">DEFEAT THE BOT OR PERISH • FIRST TO 10,000 SURVIVES</p>
+
+        <div class="scores">
+            <div class="score-card" id="player-card">
+                <h3>💀 YOU</h3>
+                <div class="score" id="player-score">0</div>
+                <div class="turn-score">TURN: <span id="player-turn-score">0</span></div>
+            </div>
+            <div class="score-card" id="bot-card">
+                <h3>☠️ THE MACHINE</h3>
+                <div class="score" id="bot-score">0</div>
+                <div class="turn-score">TURN: <span id="bot-turn-score">0</span></div>
+            </div>
+        </div>
+
+        <div class="dice-area">
+            <div class="dice-container" id="dice-container"></div>
+            <div class="buttons">
+                <button class="btn-roll" id="roll-btn" onclick="rollDice()">⚠️ ROLL</button>
+                <button class="btn-bank" id="bank-btn" onclick="bankPoints()" disabled>💰 BANK</button>
+                <button class="btn-new-game" onclick="newGame()">🔄 RESTART</button>
+            </div>
+        </div>
+
+        <div class="message info" id="message">CLICK "ROLL" TO BEGIN YOUR CHALLENGE ⚠️</div>
+
+        <div class="rules">
+            <h4>⚠️ CHALLENGE RULES:</h4>
+            <ul>
+                <li>⚠️ Roll all 6 dice to start your turn</li>
+                <li>💀 Click dice to keep scoring combinations</li>
+                <li>🔥 Single 1s = 100 pts, Single 5s = 50 pts</li>
+                <li>⚡ Three of a kind = value × 100 (except 1s = 1000)</li>
+                <li>💎 Three pairs = 1500 pts</li>
+                <li>🎯 Straight (1-2-3-4-5-6) = 1500 pts</li>
+                <li>💰 Bank points to save them, or risk it all!</li>
+                <li>☠️ FARKLE (no scoring dice) = LOSE ALL TURN POINTS!</li>
+                <li>🏆 First to 10,000 wins the challenge!</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            playerScore: 0,
+            botScore: 0,
+            currentPlayer: 'player',
+            turnScore: 0,
+            dice: [],
+            selectedThisRoll: [], // Dice selected from current roll
+            keptDiceValues: [], // All kept dice values across rolls
+            rollsThisTurn: 0,
+            gameOver: false
+        };
+
+        function newGame() {
+            gameState = {
+                playerScore: 0,
+                botScore: 0,
+                currentPlayer: 'player',
+                turnScore: 0,
+                dice: [],
+                selectedThisRoll: [],
+                keptDiceValues: [],
+                rollsThisTurn: 0,
+                gameOver: false
+            };
+            updateDisplay();
+            showMessage('NEW CHALLENGE INITIATED! YOUR TURN! ⚠️', 'info');
+        }
+
+        function rollDice() {
+            if (gameState.gameOver) return;
+
+            // Commit selected dice from previous roll and add their score
+            if (gameState.selectedThisRoll.length > 0) {
+                const selectedValues = gameState.selectedThisRoll.map(idx => gameState.dice[idx]);
+                const rollScore = calculateScore(selectedValues);
+                gameState.turnScore += rollScore; // Add to turn total
+                
+                gameState.selectedThisRoll.forEach(idx => {
+                    gameState.keptDiceValues.push(gameState.dice[idx]);
+                });
+                gameState.selectedThisRoll = [];
+            }
+
+            const numDice = 6 - gameState.keptDiceValues.length;
+            if (numDice === 0) {
+                // Hot dice! Roll all 6 again
+                gameState.keptDiceValues = [];
+                gameState.dice = Array(6).fill(0).map(() => Math.floor(Math.random() * 6) + 1);
+                showMessage('🔥 HOT DICE! ALL 6 REROLLED! MAXIMUM RISK!', 'success');
+            } else {
+                gameState.dice = Array(numDice).fill(0).map(() => Math.floor(Math.random() * 6) + 1);
+            }
+
+            gameState.rollsThisTurn++;
+            updateDisplay();
+
+            const scoringDice = findScoringDice(gameState.dice);
+            
+            if (scoringDice.length === 0) {
+                // Farkle!
+                showMessage('☠️ FARKLE! NO SCORING DICE! TURN TERMINATED!', 'warning');
+                gameState.turnScore = 0;
+                gameState.keptDiceValues = [];
+                gameState.selectedThisRoll = [];
+                setTimeout(() => {
+                    endTurn();
+                }, 2000);
+                document.getElementById('roll-btn').disabled = true;
+                document.getElementById('bank-btn').disabled = true;
+            } else {
+                showMessage('SELECT DICE TO KEEP, THEN ROLL OR BANK! ⚠️', 'info');
+                document.getElementById('bank-btn').disabled = gameState.turnScore === 0;
+            }
+
+            renderDice();
+        }
+
+        function findScoringDice(dice) {
+            const scoring = [];
+            const counts = {};
+            
+            dice.forEach((die, idx) => {
+                counts[die] = counts[die] || [];
+                counts[die].push(idx);
+            });
+
+            // Check for straight
+            if (dice.length === 6) {
+                const sorted = [...dice].sort();
+                if (sorted.join('') === '123456') {
+                    return dice.map((_, idx) => idx);
+                }
+            }
+
+            // Check for three pairs
+            const pairs = Object.values(counts).filter(arr => arr.length === 2);
+            if (pairs.length === 3) {
+                return dice.map((_, idx) => idx);
+            }
+
+            // Check for three of a kind or more
+            Object.entries(counts).forEach(([value, indices]) => {
+                if (indices.length >= 3) {
+                    indices.forEach(idx => scoring.push(idx));
+                }
+            });
+
+            // Check for 1s and 5s not in three of a kind
+            Object.entries(counts).forEach(([value, indices]) => {
+                if ((value === '1' || value === '5') && indices.length < 3) {
+                    indices.forEach(idx => scoring.push(idx));
+                }
+            });
+
+            return scoring;
+        }
+
+        function calculateScore(dice) {
+            if (dice.length === 0) return 0;
+
+            const counts = {};
+            dice.forEach(die => {
+                counts[die] = (counts[die] || 0) + 1;
+            });
+
+            // Check for straight
+            if (dice.length === 6) {
+                const sorted = [...dice].sort();
+                if (sorted.join('') === '123456') {
+                    return 1500;
+                }
+            }
+
+            // Check for three pairs
+            const pairs = Object.values(counts).filter(count => count === 2);
+            if (pairs.length === 3) {
+                return 1500;
+            }
+
+            let score = 0;
+
+            // Three of a kind or more
+            Object.entries(counts).forEach(([value, count]) => {
+                const num = parseInt(value);
+                if (count >= 3) {
+                    if (num === 1) {
+                        score += 1000;
+                    } else {
+                        score += num * 100;
+                    }
+                    // Extra dice beyond 3
+                    if (count > 3) {
+                        if (num === 1) {
+                            score += (count - 3) * 1000;
+                        } else {
+                            score += (count - 3) * (num * 100);
+                        }
+                    }
+                    counts[value] = 0; // Mark as counted
+                }
+            });
+
+            // Individual 1s and 5s
+            if (counts[1] > 0 && counts[1] < 3) {
+                score += counts[1] * 100;
+            }
+            if (counts[5] > 0 && counts[5] < 3) {
+                score += counts[5] * 50;
+            }
+
+            return score;
+        }
+
+        function toggleDie(index) {
+            if (gameState.gameOver || gameState.currentPlayer !== 'player') return;
+            if (gameState.dice.length === 0) return;
+
+            const scoringIndices = findScoringDice(gameState.dice);
+            if (!scoringIndices.includes(index)) {
+                showMessage('⚠️ INVALID SELECTION! THAT DIE DOES NOT SCORE!', 'warning');
+                return;
+            }
+
+            // Toggle selection
+            const selectedIndex = gameState.selectedThisRoll.indexOf(index);
+            if (selectedIndex >= 0) {
+                // Unselect
+                gameState.selectedThisRoll.splice(selectedIndex, 1);
+            } else {
+                // Select
+                gameState.selectedThisRoll.push(index);
+            }
+
+            // Show potential score for this roll only
+            const selectedValues = gameState.selectedThisRoll.map(idx => gameState.dice[idx]);
+            const thisRollScore = calculateScore(selectedValues);
+            const potentialTurnScore = gameState.turnScore + thisRollScore;
+
+            // Update display to show potential score
+            if (gameState.currentPlayer === 'player') {
+                document.getElementById('player-turn-score').textContent = potentialTurnScore;
+            }
+
+            renderDice();
+
+            document.getElementById('bank-btn').disabled = potentialTurnScore === 0;
+            
+            // Check if all dice are selected
+            if (gameState.selectedThisRoll.length === gameState.dice.length) {
+                showMessage(`SELECTED +${thisRollScore} PTS! ROLL FOR HOT DICE! 🔥`, 'success');
+            } else if (gameState.selectedThisRoll.length > 0) {
+                showMessage(`SELECTED +${thisRollScore} PTS! CHOOSE MORE, ROLL, OR BANK! ⚠️`, 'info');
+            } else {
+                showMessage('SELECT DICE TO KEEP, THEN ROLL OR BANK! ⚠️', 'info');
+            }
+        }
+
+        function renderDice() {
+            const container = document.getElementById('dice-container');
+            container.innerHTML = '';
+
+            gameState.dice.forEach((value, index) => {
+                const die = document.createElement('div');
+                die.className = 'die';
+                die.textContent = value;
+                die.onclick = () => toggleDie(index);
+
+                // Check if this die is selected
+                if (gameState.selectedThisRoll.includes(index)) {
+                    die.classList.add('kept');
+                }
+
+                // No visual indication of scoring dice - player must know the rules!
+
+                container.appendChild(die);
+            });
+        }
+
+        function bankPoints() {
+            // Commit any selected dice first and add their score
+            if (gameState.selectedThisRoll.length > 0) {
+                const selectedValues = gameState.selectedThisRoll.map(idx => gameState.dice[idx]);
+                const rollScore = calculateScore(selectedValues);
+                gameState.turnScore += rollScore;
+                
+                gameState.selectedThisRoll.forEach(idx => {
+                    gameState.keptDiceValues.push(gameState.dice[idx]);
+                });
+                gameState.selectedThisRoll = [];
+            }
+
+            if (gameState.turnScore === 0) {
+                showMessage('⚠️ SELECT DICE FIRST!', 'warning');
+                return;
+            }
+
+            if (gameState.currentPlayer === 'player') {
+                gameState.playerScore += gameState.turnScore;
+                showMessage(`💰 BANKED ${gameState.turnScore} POINTS! SECURED!`, 'success');
+            } else {
+                gameState.botScore += gameState.turnScore;
+            }
+
+            if (gameState.playerScore >= 10000 || gameState.botScore >= 10000) {
+                endGame();
+                return;
+            }
+
+            gameState.turnScore = 0;
+            gameState.keptDiceValues = [];
+            gameState.selectedThisRoll = [];
+            gameState.dice = [];
+            gameState.rollsThisTurn = 0;
+
+            updateDisplay();
+            endTurn();
+        }
+
+        function endTurn() {
+            gameState.turnScore = 0;
+            gameState.keptDiceValues = [];
+            gameState.selectedThisRoll = [];
+            gameState.dice = [];
+            gameState.rollsThisTurn = 0;
+
+            if (gameState.currentPlayer === 'player') {
+                gameState.currentPlayer = 'bot';
+                updateDisplay();
+                showMessage('☠️ THE MACHINE\'S TURN...', 'info');
+                setTimeout(botTurn, 1500);
+            } else {
+                gameState.currentPlayer = 'player';
+                updateDisplay();
+                showMessage('YOUR TURN! CLICK "ROLL" ⚠️', 'info');
+            }
+
+            document.getElementById('roll-btn').disabled = gameState.currentPlayer !== 'player';
+            document.getElementById('bank-btn').disabled = true;
+        }
+
+        function botDecideWhichDiceToKeep(dice) {
+            // Strategic bot that evaluates different combinations
+            const scoringIndices = findScoringDice(dice);
+            if (scoringIndices.length === 0) return [];
+
+            // Get all possible combinations of scoring dice to keep
+            const combinations = getAllCombinations(scoringIndices);
+            
+            // Evaluate each combination
+            let bestChoice = null;
+            let bestScore = -1;
+
+            combinations.forEach(combo => {
+                if (combo.length === 0) return;
+                
+                const diceValues = combo.map(idx => dice[idx]);
+                const immediateScore = calculateScore(diceValues);
+                const diceLeftToRoll = dice.length - combo.length;
+                
+                // Calculate expected value considering:
+                // 1. Immediate points
+                // 2. Number of dice left to roll (more dice = more risk but more potential)
+                // 3. Probability of farkle
+                const farkleRisk = calculateFarkleRisk(diceLeftToRoll);
+                const expectedValue = immediateScore * (1 - farkleRisk) + 
+                                     (diceLeftToRoll * 30); // Rough expected value per die
+                
+                // Strategy: prefer keeping fewer dice if expected value is similar
+                // This gives more chances for big scores
+                const strategyScore = expectedValue - (combo.length * 5);
+                
+                if (strategyScore > bestScore) {
+                    bestScore = strategyScore;
+                    bestChoice = combo;
+                }
+            });
+
+            return bestChoice || scoringIndices;
+        }
+
+        function getAllCombinations(arr) {
+            // Generate all non-empty subsets
+            const result = [];
+            const total = Math.pow(2, arr.length);
+            
+            for (let i = 1; i < total; i++) {
+                const combo = [];
+                for (let j = 0; j < arr.length; j++) {
+                    if (i & (1 << j)) {
+                        combo.push(arr[j]);
+                    }
+                }
+                result.push(combo);
+            }
+            
+            return result;
+        }
+
+        function calculateFarkleRisk(numDice) {
+            // Approximate probability of farkle based on number of dice
+            // These are rough estimates
+            const farkleProb = {
+                1: 0.67,  // 4/6 chance (only 1 and 5 score)
+                2: 0.44,
+                3: 0.28,
+                4: 0.16,
+                5: 0.08,
+                6: 0.04
+            };
+            return farkleProb[numDice] || 0.5;
+        }
+
+        function botTurn() {
+            if (gameState.gameOver) return;
+
+            // Roll dice (selected dice from previous roll are already committed)
+            const numDice = 6 - gameState.keptDiceValues.length;
+            
+            if (numDice === 0) {
+                gameState.keptDiceValues = [];
+                gameState.dice = Array(6).fill(0).map(() => Math.floor(Math.random() * 6) + 1);
+            } else {
+                gameState.dice = Array(numDice).fill(0).map(() => Math.floor(Math.random() * 6) + 1);
+            }
+
+            gameState.rollsThisTurn++;
+            updateDisplay();
+            renderDice();
+
+            const scoringIndices = findScoringDice(gameState.dice);
+
+            if (scoringIndices.length === 0) {
+                showMessage('☠️ THE MACHINE FARKLED! YOUR TURN! ⚡', 'success');
+                gameState.turnScore = 0;
+                gameState.keptDiceValues = [];
+                gameState.selectedThisRoll = [];
+                setTimeout(endTurn, 2000);
+                return;
+            }
+
+            // Show bot selecting dice with delay
+            showMessage('☠️ THE MACHINE CALCULATES...', 'info');
+            
+            // Bot strategically decides which dice to keep
+            const diceToKeep = botDecideWhichDiceToKeep(gameState.dice);
+            
+            // Select dice one by one with animation
+            let selectionDelay = 0;
+            diceToKeep.forEach((idx, i) => {
+                setTimeout(() => {
+                    gameState.selectedThisRoll.push(idx);
+                    
+                    // Calculate score for this roll only
+                    const selectedValues = gameState.selectedThisRoll.map(idx => gameState.dice[idx]);
+                    const thisRollScore = calculateScore(selectedValues);
+                    const potentialTurnScore = gameState.turnScore + thisRollScore;
+                    
+                    document.getElementById('bot-turn-score').textContent = potentialTurnScore;
+                    renderDice();
+                    
+                    // After all selections are done
+                    if (i === diceToKeep.length - 1) {
+                        setTimeout(() => {
+                            // Commit the selected dice to turn score before making banking decision
+                            const selectedValues = gameState.selectedThisRoll.map(idx => gameState.dice[idx]);
+                            const thisRollScore = calculateScore(selectedValues);
+                            gameState.turnScore += thisRollScore;
+                            
+                            // Move selected dice to kept dice
+                            gameState.selectedThisRoll.forEach(idx => {
+                                gameState.keptDiceValues.push(gameState.dice[idx]);
+                            });
+                            gameState.selectedThisRoll = [];
+                            
+                            // Update display with committed score
+                            document.getElementById('bot-turn-score').textContent = gameState.turnScore;
+                            
+                            // Bot decision: bank if over 350 or if only 1-2 dice left to roll
+                            const diceLeftToRoll = 6 - gameState.keptDiceValues.length;
+                            const farkleRisk = calculateFarkleRisk(diceLeftToRoll);
+                            
+                            // More sophisticated banking decision
+                            const shouldBank = gameState.turnScore >= 350 || 
+                                             diceLeftToRoll <= 1 || 
+                                             (gameState.turnScore >= 200 && farkleRisk > 0.4);
+
+                            if (shouldBank) {
+                                showMessage(`☠️ THE MACHINE BANKS ${gameState.turnScore} POINTS!`, 'info');
+                                setTimeout(bankPoints, 1000);
+                            } else {
+                                showMessage('☠️ THE MACHINE ROLLS AGAIN...', 'info');
+                                setTimeout(botTurn, 1000);
+                            }
+                        }, 500);
+                    }
+                }, selectionDelay);
+                selectionDelay += 300;
+            });
+        }
+
+        function endGame() {
+            gameState.gameOver = true;
+            const winner = gameState.playerScore >= 10000 ? 'You' : 'The Machine';
+            const emoji = winner === 'You' ? '💀⚡' : '☠️';
+            
+            // Trigger confetti if player wins!
+            if (winner === 'You') {
+                createConfetti();
+                showVictoryScreen();
+            } else {
+                // Show defeat screen if player loses
+                createCryingEmojis();
+                showDefeatScreen();
+            }
+            
+            showMessage(`${emoji} ${winner.toUpperCase()} WINS! FINAL: YOU ${gameState.playerScore} - MACHINE ${gameState.botScore}`, 'success');
+            document.getElementById('roll-btn').disabled = true;
+            document.getElementById('bank-btn').disabled = true;
+        }
+
+        function showVictoryScreen() {
+            const overlay = document.createElement('div');
+            overlay.className = 'victory-overlay';
+            overlay.innerHTML = `
+                <div class="victory-content">
+                    <div class="victory-title">VICTORY</div>
+                    <div class="victory-score">
+                        YOUR SCORE: ${gameState.playerScore}
+                    </div>
+                    <div class="victory-score">
+                        MACHINE SCORE: ${gameState.botScore}
+                    </div>
+                    <div class="victory-message">YOU SURVIVED THE CHALLENGE</div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            // Remove overlay after 5 seconds or on click
+            setTimeout(() => {
+                overlay.style.animation = 'fadeIn 0.5s reverse forwards';
+                setTimeout(() => overlay.remove(), 500);
+            }, 5000);
+            
+            overlay.onclick = () => {
+                overlay.style.animation = 'fadeIn 0.5s reverse forwards';
+                setTimeout(() => overlay.remove(), 500);
+            };
+        }
+
+        function showDefeatScreen() {
+            const overlay = document.createElement('div');
+            overlay.className = 'victory-overlay';
+            overlay.innerHTML = `
+                <div class="victory-content">
+                    <div class="victory-title">DEFEATED</div>
+                    <div class="victory-score">
+                        YOUR SCORE: ${gameState.playerScore}
+                    </div>
+                    <div class="victory-score">
+                        MACHINE SCORE: ${gameState.botScore}
+                    </div>
+                    <div class="victory-message">THE MACHINE PREVAILS</div>
+                    <div class="victory-message" style="margin-top: 20px; font-size: 1.5em;">MWAHAHAHAHA</div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            // Remove overlay after 5 seconds or on click
+            setTimeout(() => {
+                overlay.style.animation = 'fadeIn 0.5s reverse forwards';
+                setTimeout(() => overlay.remove(), 500);
+            }, 5000);
+            
+            overlay.onclick = () => {
+                overlay.style.animation = 'fadeIn 0.5s reverse forwards';
+                setTimeout(() => overlay.remove(), 500);
+            };
+        }
+
+        function createCryingEmojis() {
+            const emojis = ['😢', '😭', '😿', '💔'];
+            const emojiCount = 100;
+
+            for (let i = 0; i < emojiCount; i++) {
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.className = 'confetti';
+                    emoji.style.fontSize = '20px';
+                    
+                    // Random properties
+                    const left = Math.random() * 100;
+                    const animationDuration = 2 + Math.random() * 3;
+                    const delay = Math.random() * 0.5;
+                    const selectedEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+                    
+                    emoji.textContent = selectedEmoji;
+                    emoji.style.left = left + '%';
+                    emoji.style.animation = `confetti-fall ${animationDuration}s linear ${delay}s forwards`;
+                    
+                    document.body.appendChild(emoji);
+                    
+                    // Remove emoji after animation
+                    setTimeout(() => {
+                        emoji.remove();
+                    }, (animationDuration + delay) * 1000);
+                }, i * 30);
+            }
+        }
+
+        function createConfetti() {
+            const colors = ['#ff0000', '#8b0000', '#ff4444', '#4a0000', '#ff6666', '#2a0000'];
+            const confettiCount = 150;
+
+            for (let i = 0; i < confettiCount; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    
+                    // Random properties
+                    const left = Math.random() * 100;
+                    const animationDuration = 2 + Math.random() * 3;
+                    const size = 5 + Math.random() * 10;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    const delay = Math.random() * 0.5;
+                    
+                    confetti.style.left = left + '%';
+                    confetti.style.width = size + 'px';
+                    confetti.style.height = size + 'px';
+                    confetti.style.backgroundColor = color;
+                    confetti.style.animation = `confetti-fall ${animationDuration}s linear ${delay}s forwards`;
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    // Remove confetti after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, (animationDuration + delay) * 1000);
+                }, i * 30);
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('player-score').textContent = gameState.playerScore;
+            document.getElementById('bot-score').textContent = gameState.botScore;
+            document.getElementById('player-turn-score').textContent = 
+                gameState.currentPlayer === 'player' ? gameState.turnScore : 0;
+            document.getElementById('bot-turn-score').textContent = 
+                gameState.currentPlayer === 'bot' ? gameState.turnScore : 0;
+
+            document.getElementById('player-card').classList.toggle('active', gameState.currentPlayer === 'player');
+            document.getElementById('bot-card').classList.toggle('active', gameState.currentPlayer === 'bot');
+
+            document.getElementById('roll-btn').disabled = gameState.currentPlayer !== 'player' || gameState.gameOver;
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            msg.classList.add('shake');
+            setTimeout(() => msg.classList.remove('shake'), 500);
+        }
+
+        // Initialize
+        updateDisplay();
+    </script>
+</body>
+</html>
