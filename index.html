@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Bingo Eras ✨</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✨ Bingo Eras ✨</h1>
+            <p class="subtitle">Create your own sparkly bingo cards</p>
+        </header>
+
+        <div id="menu-screen" class="screen active">
+            <div class="menu-buttons">
+                <button class="btn btn-primary" onclick="showCreateScreen()">
+                    <span class="icon">🎨</span>
+                    Create New Card
+                </button>
+                <button class="btn btn-secondary" onclick="showLoadScreen()">
+                    <span class="icon">💖</span>
+                    Load Saved Card
+                </button>
+                <button class="btn btn-secondary" onclick="showImportScreen()">
+                    <span class="icon">📥</span>
+                    Import Shared Card
+                </button>
+            </div>
+        </div>
+
+        <div id="create-screen" class="screen">
+            <button class="btn-back" onclick="showMenuScreen()">← Back</button>
+            <h2>Create Your Bingo Card</h2>
+            <div class="instructions">
+                <p>✨ Fill in each square with your own text! Click on a square and type whatever you want. The center square is always FREE! 💖</p>
+            </div>
+            <div class="card-name-input">
+                <input type="text" id="card-name" placeholder="Name your card (e.g., Taylor's Eras)" maxlength="30" oninput="this.value = this.value.replace(/[<>]/g, '')">
+            </div>
+            <div class="bingo-grid" id="create-grid"></div>
+            <button class="btn btn-primary" onclick="saveCard()">
+                <span class="icon">💾</span>
+                Save Card
+            </button>
+        </div>
+
+        <div id="load-screen" class="screen">
+            <button class="btn-back" onclick="showMenuScreen()">← Back</button>
+            <h2>Your Saved Cards</h2>
+            <div id="saved-cards-list"></div>
+        </div>
+
+        <div id="import-screen" class="screen">
+            <button class="btn-back" onclick="showMenuScreen()">← Back</button>
+            <h2>Import Shared Card</h2>
+            <div class="instructions">
+                <p>✨ Paste a shared card code below to import it! 💖</p>
+                <p style="margin-top: 10px; font-size: 0.95em;">When someone shares a card with you, they'll send you a message that looks like this:</p>
+                <div style="background: white; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 0.85em; text-align: left;">
+                    <strong>✨ Bingo Card: Taylor's Eras ✨</strong><br><br>
+                    Import this card by copying the code below...<br><br>
+                    <code style="color: #667eea;">eyJuYW1lIjoiVGF5bG9yJ3MgRXJhcyIsImNlbGxzIjpbLi4uXX0=</code>
+                </div>
+                <p style="margin-top: 10px; font-size: 0.95em;">Just copy the entire message and paste it below!</p>
+            </div>
+            <div class="import-input">
+                <textarea id="import-code" placeholder="Paste the shared card code here..." rows="6"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="importCard()">
+                <span class="icon">📥</span>
+                Import Card
+            </button>
+        </div>
+
+        <div id="play-screen" class="screen">
+            <button class="btn-back" onclick="showMenuScreen()">← Back</button>
+            <div class="play-header">
+                <h2 id="play-card-name"></h2>
+                <div class="play-actions">
+                    <button class="btn btn-small" onclick="resetCard()">
+                        <span class="icon">🔄</span>
+                        Reset
+                    </button>
+                    <button class="btn btn-small" onclick="downloadCard()">
+                        <span class="icon">📸</span>
+                        Save as Image
+                    </button>
+                </div>
+            </div>
+            <div class="bingo-grid" id="play-grid"></div>
+        </div>
+    </div>
+
+    <div id="confetti-container"></div>
+    
+    <div id="bingo-overlay" class="bingo-overlay">
+        <div class="bingo-message">
+            <div class="bingo-text">🎉 BINGO! 🎉</div>
+            <div class="bingo-subtext">Congratulations! You did it! ✨💖✨</div>
+            <button class="btn btn-primary" onclick="closeBingoOverlay()">Keep Playing</button>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
